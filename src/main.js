@@ -1,18 +1,18 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-import Antd from "ant-design-vue";
-import "ant-design-vue/dist/antd.css";
+import Vue from 'vue'
+import App from './App.vue'
+import VueRouter from 'vue-router'
+import routes from './router/index'
 
-import "./public-path";
-import App from "./App.vue";
-import routes from "./routes";
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 
-Vue.use(VueRouter);
-Vue.use(Antd);
-Vue.config.productionTip = false;
+Vue.use(ElementUI);
+Vue.use(VueRouter)
+Vue.config.productionTip = false
 
 let instance = null;
 let router = null;
+
 
 /**
  * 渲染函数
@@ -21,9 +21,7 @@ let router = null;
 function render() {
   // 在 render 中创建 VueRouter，可以保证在卸载微应用时，移除 location 事件监听，防止事件污染
   router = new VueRouter({
-    // 运行在主应用中时，添加路由命名空间 /vue
-    base: window.__POWERED_BY_QIANKUN__ ? "/vue" : "/",
-    mode: "history",
+    // mode:"history",
     routes,
   });
 
@@ -31,19 +29,24 @@ function render() {
   instance = new Vue({
     router,
     render: (h) => h(App),
-  }).$mount("#app");
+  }).$mount('#app');
 }
 
 // 独立运行时，直接挂载应用
 if (!window.__POWERED_BY_QIANKUN__) {
-  render()
+  render();
+}else{
+  // 动态配置 webpack public-path 防止资源加载出错
+  // eslint-disable-next-line no-undef
+  __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__
+  console.log("__webpack_public_path-->",__webpack_public_path__);
 }
 
 /**
  * bootstrap 只会在微应用初始化的时候调用一次，下次微应用重新进入时会直接调用 mount 钩子，不会再重复触发 bootstrap。
  * 通常我们可以在这里做一些全局变量的初始化，比如不会在 unmount 阶段被销毁的应用级别的缓存等。
  */
-export async function bootstrap() {
+ export async function bootstrap() {
   console.log("VueMicroApp bootstraped");
 }
 
